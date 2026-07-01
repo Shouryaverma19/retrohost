@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--
+  Página standalone para testar manualmente o endpoint WHEP do mediamtx,
+  sem depender do frontend real do projeto. Útil para validar o pipeline
+  de streaming (vídeo + áudio) isoladamente durante o desenvolvimento.
+
+  Uso: abra este arquivo direto no navegador (file://) e ajuste o IP/porta
+  no campo de texto antes de conectar.
+-->
+<html>
+<head>
+<title>HomeGames - teste WHEP</title>
+<style>
+  body { margin: 0; background: #111; color: #eee; font-family: sans-serif; }
+  #controls { padding: 8px; display: flex; gap: 8px; align-items: center; }
+  #status { padding: 0 8px 8px; }
+  #video-wrap {
+    width: 100vw;
+    height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
+  #v {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+  }
+  #stats {
+    padding: 8px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    white-space: pre;
+    background: #1a1a1a;
+  }
+</style>
+</head>
+<body>
+<div id="controls">
+  <label for="whep-url">WHEP URL:</label>
+  <input id="whep-url" type="text" size="40" value="http://192.168.1.x:8889/live/whep" />
+  <button id="connect-btn">Conectar</button>
+</div>
+<p id="status">aguardando...</p>
+<div id="video-wrap">
+  <video id="v" autoplay controls playsinline></video>
+</div>
+<div id="stats">estatísticas de latência aparecem aqui após conectar...</div>
+<script>
+const statusEl = document.getElementById("status");
+const statsEl = document.getElementById("stats");
+const urlInput = document.getElementById("whep-url");
+let statsInterval = null;
+
+function startStatsLoop(pc) {
+  if (statsInterval) clearInterval(statsInterval);
+  statsInterval = setInterval(async () => {
+    const stats = await pc.getStats();
+    let lines = [];
+    stats.forEach((report) => {
+      if (report.type === "inbound-rtp" && (report.kind === "video" || report.kind === "audio")) {
+        const jitterBufferMs = report.jitterBufferDelay && report.jitterBufferEmittedCount
+          ? ((report.jitterBufferDelay / report.jitterBufferEmittedCount) * 1000).toFixed(1)
+          : "?";
+        lines.push(
+          `[${report.kind}] jitterBuffer=${jitterBufferMs}ms ` +
+          `jitter=${(report.jitter * 1000).toFixed(1)}ms ` +
+          `packetsLost=${report.packetsLost} ` +
+          `framesDecoded=${report.framesDecoded ?? "-"} ` +
+          `freezeCount=${report.freezeCount ?? "-"}`
+        );
+      }
+      if (report.type === "candidate-pair" && report.state === "succeeded" && report.currentRoundTripTime !== undefined) {
+        lines.push(`[rede] RTT=${(report.currentRoundTripTime * 1000).toFixed(1)}ms`);
+      }
+    });
+    statsEl.textContent = lines.length ? lines.join("\n") : "(sem dados ainda)";
+  }, 1000);
+}
+
+async function start() {
+  statusEl.textContent = "conectando...";
+  const pc = new RTCPeerConnection();
+  pc.ontrack = (event) => {
+    document.getElementById("v").srcObject = event.streams[0];
+    statusEl.textContent = "track recebido: " + event.track.kind;
+    startStatsLoop(pc);
+  };
+  pc.oniceconnectionstatechange = () => {
+    statusEl.textContent = "ICE state: " + pc.iceConnectionState;
+  };
+  pc.addTransceiver("video", { direction: "recvonly" });
+  pc.addTransceiver("audio", { direction: "recvonly" });
+
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+
+  const resp = await fetch(urlInput.value, {
+    method: "POST",
+    headers: { "Content-Type": "application/sdp" },
+    body: offer.sdp,
+  });
+
+  if (!resp.ok) {
+    statusEl.textContent = "Erro WHEP: " + resp.status + " " + (await resp.text());
+    return;
+  }
+
+  const answerSdp = await resp.text();
+  await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
+  statusEl.textContent = "SDP answer aplicado, aguardando track...";
+}
+
+document.getElementById("connect-btn").addEventListener("click", () => {
+  start().catch((err) => {
+    statusEl.textContent = "Erro: " + err.message;
+    console.error(err);
+  });
+});
+</script>
+</body>
+</html>

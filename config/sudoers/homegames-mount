@@ -1,0 +1,3 @@
+YOUR_USER ALL=(root) NOPASSWD: /bin/mount -t cifs * /mnt/homegames-roms *
+YOUR_USER ALL=(root) NOPASSWD: /bin/umount /mnt/homegames-roms
+YOUR_USER ALL=(root) NOPASSWD: /usr/bin/tee /etc/samba/homegames-credentials

@@ -1,0 +1,56 @@
+# Local credentials and secrets (never commit these)
+*-credenciais
+*-credentials
+*.credentials
+.env
+.env.*
+
+# Python
+__pycache__/
+**/__pycache__/
+*.pyc
+backend/.venv/
+.venv/
+*.egg-info/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/*.log
+
+# ROMs / BIOS / cores (large binary game assets, never versioned)
+emulator/roms/*
+!emulator/roms/ps1
+!emulator/roms/snes
+emulator/roms/ps1/*
+!emulator/roms/ps1/.gitkeep
+emulator/roms/snes/*
+!emulator/roms/snes/.gitkeep
+emulator/bios/*
+!emulator/bios/.gitkeep
+emulator/cores/*
+!emulator/cores/.gitkeep
+emulator/saves/*
+!emulator/saves/.gitkeep
+emulator/states/*
+!emulator/states/.gitkeep
+
+# Binários de terceiros baixados via script (não versionados, ver scripts/install_mediamtx.sh)
+bin/
+
+# Certificado autoassinado gerado automaticamente pelo mediamtx (servidor MOQ opcional)
+auto.crt
+auto.key
+
+# Estado de runtime gerado pela própria API (POST /storage/local|cifs), não código
+config/storage.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Binario compilado do preload SDL (gerado no Dockerfile)
+container/*.so

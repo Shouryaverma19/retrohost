@@ -1,0 +1,17 @@
+"""Interface de streaming de vídeo/áudio do emulador para o navegador."""
+from abc import ABC, abstractmethod
+from typing import Any
+
+
+class StreamingProvider(ABC):
+    @abstractmethod
+    def start(self, game: Any) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def stop(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def status(self) -> bool:
+        raise NotImplementedError

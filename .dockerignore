@@ -1,0 +1,42 @@
+# Artefatos de runtime / ambiente — não vão para a imagem (recriados no build
+# ou montados como volume). Espelha o .gitignore + extras de container.
+**/.venv/
+**/__pycache__/
+**/*.pyc
+*.egg-info/
+
+# Banco SQLite (montado como volume nomeado, persiste fora da imagem)
+*.db
+*.sqlite
+*.sqlite3
+
+# Binários de terceiros (mediamtx é baixado no Dockerfile; bin/ local é do Pi/armv7)
+bin/
+
+# ROMs / BIOS / cores são montados como volume, nunca embutidos na imagem
+emulator/roms/
+emulator/bios/
+emulator/cores/
+emulator/saves/
+emulator/states/
+
+# Certificado autoassinado gerado pelo mediamtx em runtime
+auto.crt
+auto.key
+
+# Estado de runtime gerado pela própria API
+config/storage.json
+
+# cores.json versionado tem paths do Pi (/home/vitor/...); no container o
+# entrypoint gera um apontando para os cores do apt (/usr/lib/.../libretro/).
+config/cores.json
+
+# Git / logs / docs não necessários no build
+.git/
+.gitignore
+.gitattributes
+logs/*.log
+src/
+
+# Binario compilado do preload (gerado no build)
+container/*.so

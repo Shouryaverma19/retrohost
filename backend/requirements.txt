@@ -1,0 +1,11 @@
+fastapi==0.115.0
+uvicorn==0.30.6
+pydantic==2.9.2
+SQLAlchemy==2.0.35
+# wsproto: backend de WebSocket pure-Python para o uvicorn (sem extras).
+# Não usar "websockets" - sem wheel armv7, compilaria do source no Pi 3.
+wsproto==1.2.0
+
+# python3-evdev (input remoto via uinput) vem do apt, não pip - ver
+# scripts/setup_input.sh. Não listado aqui porque não é pip-instalável
+# sem compilar no Pi 3 (mesmo motivo que evitamos uvicorn[standard]).

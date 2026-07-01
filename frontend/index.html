@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RetroHost</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <header>
+        <h1>RetroHost</h1>
+        <p id="status-line">Status: carregando...</p>
+    </header>
+
+    <main id="idle-view">
+        <div id="background-game-banner" class="hidden">
+            <span id="background-game-text"></span>
+            <button id="background-join-btn">Jogar aqui</button>
+            <button id="background-end-game-btn">Encerrar jogo</button>
+        </div>
+
+        <div class="actions">
+            <button id="scan-btn">Escanear biblioteca</button>
+            <button id="storage-toggle-btn">Configurar storage</button>
+        </div>
+
+        <form id="storage-form" class="hidden">
+            <label><input type="radio" name="storage-mode" value="local" checked /> Local (no Raspberry Pi)</label>
+            <label><input type="radio" name="storage-mode" value="cifs" /> Rede (Samba/CIFS)</label>
+
+            <div id="cifs-fields" class="hidden">
+                <input id="cifs-host" placeholder="IP do servidor (ex: 192.168.1.1)" />
+                <input id="cifs-share" placeholder="Nome do share (ex: media)" />
+                <input id="cifs-subpath" placeholder="Subpasta dentro do share (opcional, ex: Games)" />
+                <input id="cifs-username" placeholder="Usuário" />
+                <input id="cifs-password" type="password" placeholder="Senha" />
+            </div>
+
+            <button type="submit">Salvar e escanear</button>
+        </form>
+
+        <ul id="game-list"></ul>
+    </main>
+
+    <main id="play-view" class="hidden">
+        <div id="video-wrap">
+            <video id="game-video" autoplay playsinline></video>
+        </div>
+        <div class="play-controls">
+            <button id="fullscreen-btn">Tela cheia</button>
+            <button id="end-game-btn">Encerrar jogo</button>
+        </div>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
