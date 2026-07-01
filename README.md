@@ -132,73 +132,72 @@ When a game is running, any device on the LAN can open the same URL and click **
 - Raspberry Pi 3 or 4 (tested on Pi 3, kernel `6.18.34+rpt-rpi-v7`)
 - Raspberry Pi OS Lite (Debian Trixie) — no desktop required
 - SSH access with public key authentication
+- `retroarch`, `ffmpeg`, `python3`, `git` installed (`sudo apt-get install -y retroarch ffmpeg python3-venv git`)
 
-### 1. Install dependencies
-
-```bash
-sudo apt-get update
-sudo apt-get install -y retroarch ffmpeg python3-venv git cifs-utils
-# SNES core example (PS1 is compiled from source — see Adding a New Console)
-sudo apt-get install -y libretro-bsnes-mercury-performance
-```
-
-### 2. Clone and configure
+### 1. Clone the repository
 
 ```bash
 git clone <repo-url> ~/retrohost
-cd ~/retrohost/backend
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+cd ~/retrohost
 ```
 
-Edit `config/cores.json` to point to your installed core `.so` files:
-
-```json
-{
-  "ps1": "/home/YOUR_USER/retrohost/emulator/cores/pcsx_rearmed_libretro.so",
-  "snes": "/usr/lib/arm-linux-gnueabihf/libretro/bsnes_mercury_performance_libretro.so"
-}
-```
-
-Place ROMs under `emulator/roms/<console>/` and BIOS files under `emulator/bios/`.
-
-### 3. Run setup scripts (once, idempotent)
+### 2. Run the setup script
 
 ```bash
-# Configure RetroArch for headless streaming
-bash scripts/setup_streaming.sh
-
-# Download MediaMTX binary (ARMv7)
-bash scripts/install_mediamtx.sh
-
-# Enable remote input via uinput
-bash scripts/setup_input.sh
-
-# (Optional) Enable CIFS/Samba network storage
-bash scripts/setup_network_storage.sh
+bash scripts/setup.sh
 ```
 
-### 4. Install and enable systemd services
+The script is **interactive and idempotent** — it asks for your username and install directory (defaults to `~/retrohost`), then does everything automatically:
+
+- Configures RetroArch for headless mode (no TV/monitor needed)
+- Downloads MediaMTX (WebRTC server)
+- Installs and enables remote input via uinput
+- Creates the Python venv and installs backend dependencies
+- Detects installed libretro cores and generates `config/cores.json`
+- Installs and starts the `mediamtx` and `homegames` systemd services
+- Optionally configures CIFS/Samba network storage
+- Validates the installation with a health check
+
+At the end it prints the URL to open in your browser and any remaining manual steps (e.g. placing ROM files).
+
+> **Note:** If you are setting up a headless Pi for the first time, the script will add `hdmi_force_hotplug=1` to `/boot/firmware/config.txt` and ask you to reboot before streaming works.
+
+### 3. Place your ROMs and play
+
+```
+emulator/roms/
+  ps1/
+    Crash Bandicoot/
+      Crash Bandicoot.cue
+      Crash Bandicoot.bin
+  snes/
+    Super Mario World/
+      Super Mario World.sfc
+```
+
+Open `http://<PI_IP>:8000`, click **Scan library**, then **Play**.
+
+### Manual setup (advanced)
+
+If you prefer to run each step individually, the individual scripts still work:
 
 ```bash
-# Replace YOUR_USER with your actual username in the .service files first:
-# sed -i 's/YOUR_USER/pi/g' scripts/homegames.service scripts/mediamtx.service
+bash scripts/setup_streaming.sh      # configure RetroArch headless mode
+bash scripts/install_mediamtx.sh     # download MediaMTX binary (ARMv7)
+bash scripts/setup_input.sh          # enable uinput remote input
+bash scripts/setup_network_storage.sh # (optional) CIFS/Samba network storage
+```
 
-sudo cp scripts/mediamtx.service /etc/systemd/system/
-sudo cp scripts/homegames.service /etc/systemd/system/
+Then install the systemd services manually:
+
+```bash
+# Replace pi with your actual username
+sed -i 's/YOUR_USER/pi/g' scripts/homegames.service scripts/mediamtx.service
+sudo cp scripts/mediamtx.service scripts/homegames.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now mediamtx homegames
-```
-
-### 5. Validate
-
-```bash
 curl http://localhost:8000/health
-curl -X POST http://localhost:8000/scan
-curl http://localhost:8000/games
 ```
-
-Open `http://<PI_IP>:8000` in your browser.
 
 ---
 

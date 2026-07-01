@@ -30,6 +30,14 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+**On a Raspberry Pi**, use the all-in-one setup script instead:
+
+```bash
+git clone <repo-url> ~/retrohost
+cd ~/retrohost
+bash scripts/setup.sh
+```
+
 ---
 
 ## Running without Docker

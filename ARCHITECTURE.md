@@ -270,33 +270,30 @@ pip install -r requirements.txt
 
 Edit `config/cores.json` with the paths to your libretro core `.so` files. See [Adding a New Console / Core](README.md#adding-a-new-console--core) in the README.
 
-### Step 4 — Run setup scripts
+### Step 4 — Run the setup script
 
 ```bash
-bash scripts/setup_streaming.sh       # configures RetroArch headless mode
-bash scripts/install_mediamtx.sh      # downloads MediaMTX ARMv7 binary
-bash scripts/setup_input.sh           # enables uinput remote input
-bash scripts/setup_network_storage.sh # (optional) CIFS network storage
+bash scripts/setup.sh
 ```
 
-### Step 5 — Enable systemd services
+The script is interactive and idempotent. It handles all remaining steps automatically:
+- Configures RetroArch headless mode
+- Downloads MediaMTX (auto-selects ARMv7 or ARM64 binary)
+- Installs uinput remote input
+- Creates Python venv and installs dependencies
+- Detects installed libretro cores and generates `config/cores.json`
+- Installs and starts systemd services
+- Optionally configures CIFS/Samba network storage
+- Runs a health check at the end
 
-```bash
-# Edit YOUR_USER in the service files before copying:
-sed -i 's/YOUR_USER/pi/g' scripts/homegames.service scripts/mediamtx.service
-
-sudo cp scripts/mediamtx.service /etc/systemd/system/
-sudo cp scripts/homegames.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now mediamtx homegames
-```
-
-### Step 6 — Validate
+### Step 5 — Validate
 
 ```bash
 curl http://localhost:8000/health
 # Open http://<PI_IP>:8000 in browser
 ```
+
+> **Note:** The individual scripts (`setup_streaming.sh`, `install_mediamtx.sh`, `setup_input.sh`, `setup_network_storage.sh`) still work independently for advanced users or partial re-runs.
 
 ---
 
