@@ -281,6 +281,7 @@ No code changes to the backend logic are needed — `POST /play` resolves the co
 | **No authentication** | All API routes and WebSocket are open. Use only on a trusted LAN. |
 | **`--privileged` required for CIFS** | The Docker container requires `--privileged` to run `mount -t cifs`. If you don't use network storage, this could be reduced to `--cap-add SYS_ADMIN` (not yet implemented). |
 | **Gamepad button mapping assumes Xbox-style** | `GAMEPAD_BUTTON_TO_KEY` in `frontend/app.js` maps physical button 0 → RetroPad B (Xbox convention). If buttons appear swapped with your controller, swap `"a"` and `"b"` in that map. |
+| **Gamepad must be paired with the device running the browser** | RetroHost receives input from the Gamepad API of whichever browser is in control. If you transfer the session to a TV, any physical controller must already be paired with the TV (via Bluetooth or USB) — RetroHost cannot relay a gamepad from one device to another. Keyboard input from the controlling browser always works without pairing. |
 
 ---
 
