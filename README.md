@@ -21,7 +21,7 @@ Unlike general-purpose desktop-streaming platforms, RetroHost does not create vi
 - Moving a running game between devices with one click
 - Reusing Raspberry Pis, older computers, and any x86_64 PC
 - Playing from TVs, phones, tablets, and computers
-- A browser-only client with nothing to install or pair
+- A browser-only client with nothing to install — keyboard input works immediately; a physical gamepad must be paired with the device running the browser
 - Headless operation without X11 or Wayland
 - An integrated ROM library with local and network storage
 - Automatic hardware or software video encoding (NVENC, QSV, VAAPI, or libx264)
