@@ -10,24 +10,29 @@ RetroHost turns a Raspberry Pi or an older PC into a shared retro console for ev
 
 ## What makes RetroHost different
 
-RetroHost is not a general-purpose desktop streaming tool or a multi-session gaming server. Its goal is deliberately narrower: a lightweight, self-hosted retro gaming appliance for your local network.
+RetroHost turns a Raspberry Pi, an older PC, or a modern machine with a dedicated GPU into a shared retro console that follows you from screen to screen. Start playing on your laptop, open RetroHost on your phone, tablet, or TV, click **Play here**, and continue the same running game without restarting the emulator.
 
-**Unlike desktop-streaming solutions** (Sunshine, Wolf), RetroHost does not capture an X11 or Wayland desktop. RetroArch runs headlessly and writes audio and video directly into the streaming pipeline. This makes it suitable for lightweight Linux installations and resource-constrained hardware without a graphical desktop environment.
+The project is built around one continuous game session with one active controller. When another device takes over, the previous device releases control and returns to the library. This is intentional: RetroHost behaves like a single physical console available from any browser-enabled screen in your home.
 
-**What RetroHost focuses on:**
+Unlike general-purpose desktop-streaming platforms, RetroHost does not create virtual desktops or capture X11 or Wayland sessions. RetroArch runs headlessly and sends audio and video directly into the streaming pipeline. This allows RetroHost to run on lightweight Linux installations, Raspberry Pis, and older computers without a graphical desktop or physical display attached — and equally on modern hardware with NVIDIA, Intel, or AMD GPUs for lower latency encoding.
 
-- Reusing Raspberry Pis and older computers that would otherwise sit idle
-- Playing directly from smart TVs and other browser-enabled devices
-- A browser-only client — nothing to install or pair
-- Headless operation without X11, Wayland, or a physical display connected
-- An integrated ROM library with local and network storage support
-- Simple, single-session use within a trusted home network
-- Automatic selection of hardware or software video encoding
-- A small, understandable architecture that is easy to read and modify
+**RetroHost focuses on:**
 
-Projects such as [Sunshine](https://github.com/LizardByte/Sunshine), [Wolf](https://github.com/games-on-whales/wolf), and [Pod Arcade](https://github.com/pod-arcade/pod-arcade) provide broader streaming capabilities, including remote access, multiple simultaneous sessions, and general-purpose application streaming. RetroHost occupies a narrower niche and does not aim to replace them — it explores a different trade-off: less infrastructure and fewer moving parts in exchange for a focused "open a browser and play" experience on hardware you already own.
+- Moving a running game between devices with one click
+- Reusing Raspberry Pis, older computers, and any x86_64 PC
+- Playing from TVs, phones, tablets, and computers
+- A browser-only client with nothing to install or pair
+- Headless operation without X11 or Wayland
+- An integrated ROM library with local and network storage
+- Automatic hardware or software video encoding (NVENC, QSV, VAAPI, or libx264)
+- Simple, single-session use on a trusted local network
+- A small and understandable architecture that is easy to modify
 
-> **Legal note:** RetroHost is an emulation and streaming tool. It does not include, distribute, or provide access to any game ROMs or console BIOS files. You are responsible for ensuring that any content you run through RetroHost complies with applicable copyright law. See [SECURITY.md](SECURITY.md) for details.
+Projects such as [Sunshine](https://github.com/LizardByte/Sunshine), [Wolf](https://github.com/games-on-whales/wolf), and [Pod Arcade](https://github.com/pod-arcade/pod-arcade) address broader streaming scenarios — remote access, multiple simultaneous sessions, virtual desktops, or general-purpose application streaming. RetroHost occupies a deliberately narrower niche and does not aim to replace them. It trades multi-user infrastructure and remote-access features for a focused home-console experience:
+
+*One retro console. Every browser-enabled screen in your home. Pick up where you left off.*
+
+> RetroHost does not include, distribute, or provide access to game ROMs or console BIOS files. Users are responsible for supplying their own legally obtained content. See [SECURITY.md](SECURITY.md).
 
 ---
 
