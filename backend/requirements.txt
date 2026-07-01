@@ -2,10 +2,17 @@ fastapi==0.115.0
 uvicorn==0.30.6
 pydantic==2.9.2
 SQLAlchemy==2.0.35
-# wsproto: backend de WebSocket pure-Python para o uvicorn (sem extras).
-# Não usar "websockets" - sem wheel armv7, compilaria do source no Pi 3.
+# wsproto: pure-Python WebSocket backend for uvicorn (no extras).
+# Don't use "websockets" — no ARMv7 wheel, would compile from source on Pi 3.
 wsproto==1.2.0
 
-# python3-evdev (input remoto via uinput) vem do apt, não pip - ver
-# scripts/setup_input.sh. Não listado aqui porque não é pip-instalável
-# sem compilar no Pi 3 (mesmo motivo que evitamos uvicorn[standard]).
+# Test dependencies (not installed on Pi in production — install manually or
+# via: pip install pytest pytest-asyncio httpx)
+# httpx is required by FastAPI's TestClient for WebSocket testing.
+pytest==8.3.2
+pytest-asyncio==0.24.0
+httpx==0.27.2
+
+# python3-evdev (remote input via uinput) comes from apt, not pip — see
+# scripts/setup_input.sh. Not listed here because it's not pip-installable
+# without compiling on Pi 3 (same reason we avoid uvicorn[standard]).
