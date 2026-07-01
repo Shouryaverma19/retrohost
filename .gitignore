@@ -45,8 +45,10 @@ bin/
 auto.crt
 auto.key
 
-# Estado de runtime gerado pela própria API (POST /storage/local|cifs), não código
+# Runtime state written by the API — not source code
 config/storage.json
+# User-specific core paths (copy cores.json.example → cores.json and edit)
+config/cores.json
 
 # OS / editor
 .DS_Store
@@ -54,3 +56,5 @@ Thumbs.db
 
 # Binario compilado do preload SDL (gerado no Dockerfile)
 container/*.so
+.claude/
+instucoes.md

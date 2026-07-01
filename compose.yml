@@ -1,0 +1,51 @@
+name: retrohost
+
+# Quick start:
+#   docker compose up -d
+#
+# Set RETROHOST_WEBRTC_HOST to the LAN IP of this machine so other devices
+# on your network can receive the WebRTC stream:
+#   RETROHOST_WEBRTC_HOST=192.168.1.100 docker compose up -d
+#
+# GPU flags (optional — without them the encoder falls back to libx264/CPU):
+#   NVIDIA:    set RETROHOST_GPU=nvidia  (requires nvidia-container-toolkit on host)
+#   Intel/AMD: set RETROHOST_GPU=dri
+#   None/CPU:  set RETROHOST_GPU=none   (default)
+#
+# Example with NVIDIA GPU:
+#   RETROHOST_WEBRTC_HOST=192.168.1.100 RETROHOST_GPU=nvidia docker compose up -d
+
+services:
+  retrohost:
+    image: retrohost
+    build: .
+    container_name: retrohost
+    restart: unless-stopped
+    privileged: true
+
+    # GPU access (controlled by RETROHOST_GPU env var)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: ${RETROHOST_GPU_DRIVER:-}
+              count: ${RETROHOST_GPU_COUNT:-0}
+              capabilities: [gpu]
+
+    environment:
+      HOMEGAMES_WEBRTC_HOST: ${RETROHOST_WEBRTC_HOST:-}
+      HOMEGAMES_ENCODER: ${RETROHOST_ENCODER:-auto}
+
+    ports:
+      - "8000:8000"   # FastAPI / frontend
+      - "8889:8889"   # WHEP (WebRTC signaling)
+      - "8554:8554"   # RTSP (internal, MediaMTX)
+      - "8189:8189/udp" # ICE (WebRTC media)
+
+    volumes:
+      - retrohost-data:/data
+      # To use local ROMs instead of CIFS network storage:
+      # - /path/to/your/roms:/mnt/retrohost-roms:ro
+
+volumes:
+  retrohost-data:

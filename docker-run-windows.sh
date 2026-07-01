@@ -1,45 +1,42 @@
 #!/usr/bin/env bash
-# Helper para rodar o container HomeGames no Docker Desktop (Windows + WSL2).
+# Helper to run the RetroHost container on Docker Desktop (Windows + WSL2).
 #
-# A imagem é AGNÓSTICA DE GPU: o encoder de vídeo é auto-detectado (nvenc > qsv >
-# vaapi > libx264). As flags de GPU abaixo são OPCIONAIS — sem nenhuma, cai para
-# libx264 (CPU) e sobe igual. Tudo isolado no container, nada instalado no host.
+# The image is GPU-agnostic: the video encoder is auto-detected at startup
+# (nvenc > qsv > vaapi > libx264). GPU flags below are OPTIONAL — without
+# any GPU flag the encoder falls back to libx264 (CPU) and the container
+# starts normally on any machine.
 #
-#  --gpus all        : NVIDIA (NVENC). Requer runtime nvidia no Docker Desktop.
-#  --device /dev/dri : Intel/AMD (QSV/VAAPI). No WSL2 a GPU pode aparecer em
-#                      /dev/dri via dxcore; VAAPI no WSL2 é instavel, entao se
-#                      falhar a deteccao cai para CPU automaticamente.
-#  --privileged      : necessario para o mount -t cifs do storage de rede.
-#  SEM --device /dev/snd : WSL2 nao expoe audio; o container usa PulseAudio
-#                      null-sink interno (evita fast-forward sem placa de som).
+# Prerequisites: Docker Desktop installed. Image built: docker build -t retrohost .
 #
-# Controle por env:
-#  HOMEGAMES_GPU=nvidia|dri|none  (default: nvidia) — qual flag de GPU usar.
-#  HOMEGAMES_ENCODER=...          — forca um encoder (override da auto-deteccao).
-#  HOMEGAMES_WEBRTC_HOST=<ip LAN> — IP do host p/ WebRTC multi-device.
+# Usage:
+#   RETROHOST_WEBRTC_HOST=192.168.1.100 ./docker-run-windows.sh
+#   RETROHOST_WEBRTC_HOST=192.168.1.100 RETROHOST_GPU=nvidia ./docker-run-windows.sh
 #
-# Pre-requisitos: Docker Desktop. Imagem buildada: docker build -t homegames .
+# Environment variables:
+#   RETROHOST_WEBRTC_HOST  LAN IP of this machine (required for multi-device WebRTC)
+#   RETROHOST_GPU          nvidia | dri | none  (default: none)
+#   RETROHOST_ENCODER      Force a specific encoder, e.g. libx264 (overrides auto-detect)
 set -euo pipefail
 
-IMAGE="${HOMEGAMES_IMAGE:-homegames}"
-WEBRTC_HOST="${HOMEGAMES_WEBRTC_HOST:-}"
-GPU="${HOMEGAMES_GPU:-nvidia}"
+IMAGE="${RETROHOST_IMAGE:-retrohost}"
+WEBRTC_HOST="${RETROHOST_WEBRTC_HOST:-}"
+GPU="${RETROHOST_GPU:-none}"
 
 GPU_ARGS=()
 case "$GPU" in
     nvidia) GPU_ARGS=(--gpus all) ;;
     dri)    GPU_ARGS=(--device /dev/dri) ;;
     none)   GPU_ARGS=() ;;
-    *) echo "HOMEGAMES_GPU invalido: $GPU (use nvidia|dri|none)" >&2; exit 1 ;;
+    *) echo "RETROHOST_GPU invalid: $GPU (use nvidia|dri|none)" >&2; exit 1 ;;
 esac
 
 ENCODER_ARGS=()
-[[ -n "${HOMEGAMES_ENCODER:-}" ]] && ENCODER_ARGS=(-e "HOMEGAMES_ENCODER=$HOMEGAMES_ENCODER")
+[[ -n "${RETROHOST_ENCODER:-}" ]] && ENCODER_ARGS=(-e "HOMEGAMES_ENCODER=$RETROHOST_ENCODER")
 
-# Acesse a UI por http://<WEBRTC_HOST>:8000 (nao localhost) para o video
-# funcionar tambem em outros dispositivos da rede.
+# Access the UI at http://<RETROHOST_WEBRTC_HOST>:8000 (not localhost)
+# for WebRTC video to work on other devices on your LAN.
 exec docker run --rm -it \
-    --name homegames \
+    --name retrohost \
     --privileged \
     "${GPU_ARGS[@]}" \
     "${ENCODER_ARGS[@]}" \
@@ -48,5 +45,5 @@ exec docker run --rm -it \
     -p 8889:8889 \
     -p 8554:8554 \
     -p 8189:8189/udp \
-    -v homegames-data:/data \
+    -v retrohost-data:/data \
     "$IMAGE"
