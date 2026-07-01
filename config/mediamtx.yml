@@ -567,7 +567,9 @@ pathDefaults:
   # Default path settings -> Publisher source (when source is "publisher")
 
   # Allow another client to disconnect the current publisher and publish in its place.
-  overridePublisher: true
+  # Desabilitado: evita que qualquer dispositivo da LAN sequestre ou derrube o stream.
+  # O único publisher legítimo é o ffmpeg local (127.0.0.1).
+  overridePublisher: false
   # SRT encryption passphrase required to publish to this path.
   srtPublishPassphrase:
   # Demux MPEG-TS over RTSP into elementary streams.

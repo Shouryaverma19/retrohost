@@ -2,6 +2,7 @@
 *-credenciais
 *-credentials
 *.credentials
+*._credentials
 .env
 .env.*
 

@@ -72,14 +72,27 @@ function renderGames(games) {
     for (const game of games) {
         const li = document.createElement("li");
         li.className = "game-item";
-        li.innerHTML = `
-            <div class="meta">
-                <span class="console-tag">${game.console}</span>
-                <span>${game.title}</span>
-            </div>
-            <button class="play-btn" data-id="${game.id}">Jogar</button>
-        `;
-        li.querySelector(".play-btn").addEventListener("click", () => playGame(game.id));
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+
+        const consoleTag = document.createElement("span");
+        consoleTag.className = "console-tag";
+        consoleTag.textContent = game.console;
+
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = game.title;
+
+        const btn = document.createElement("button");
+        btn.className = "play-btn";
+        btn.dataset.id = game.id;
+        btn.textContent = "Jogar";
+        btn.addEventListener("click", () => playGame(game.id));
+
+        meta.appendChild(consoleTag);
+        meta.appendChild(titleSpan);
+        li.appendChild(meta);
+        li.appendChild(btn);
         gameList.appendChild(li);
     }
 }
