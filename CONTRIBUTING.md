@@ -140,9 +140,17 @@ RetroHost is designed so that adding a new console requires no backend code chan
 ## Submitting changes
 
 1. **Open an issue first** for any non-trivial change — describe the problem and proposed approach before writing code.
-2. Fork the repository and create a branch from `main`.
-3. Keep commits focused and follow the commit message convention above.
-4. Open a pull request with a clear description of what changed and why.
-5. For changes to the streaming pipeline or input subsystem, describe how you tested it (which hardware, which game, what you observed).
+2. Fork the repository and create a branch from `main`. **Never commit directly to `main`.**
+3. Name your branch after the type of change:
+   ```
+   feat/ps2-support
+   fix/cue-path-windows
+   docs/contributing-guide
+   test/scanner-edge-cases
+   refactor/encoder-profiles
+   ```
+4. Keep commits focused and follow the commit message convention above.
+5. Open a pull request targeting `main` with a clear description of what changed and why.
+6. For changes to the streaming pipeline or input subsystem, describe how you tested it (which hardware, which game, what you observed).
 
 Bug reports are also welcome — please include the output of `docker logs retrohost` or `journalctl -u homegames` when reporting streaming or input issues.
