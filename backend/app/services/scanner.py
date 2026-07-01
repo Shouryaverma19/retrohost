@@ -42,6 +42,15 @@ def scan_roms(db: Session, roms_dir: Path | None = None) -> dict:
                 title = launch_file.stem
                 found_launch_files.append((console, title, launch_file))
 
+    found_paths = {str(lf) for _, _, lf in found_launch_files}
+
+    # Remove registros cujos arquivos não existem mais no storage.
+    removed = 0
+    for game in db.query(Game).all():
+        if game.launch_file not in found_paths:
+            db.delete(game)
+            removed += 1
+
     added = 0
     updated = 0
     for console, title, launch_file in found_launch_files:
@@ -68,5 +77,6 @@ def scan_roms(db: Session, roms_dir: Path | None = None) -> dict:
         "scanned": len(found_launch_files),
         "added": added,
         "updated": updated,
+        "removed": removed,
         "games": all_games,
     }

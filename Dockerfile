@@ -81,9 +81,12 @@ RUN arch="$(uname -m)"; \
 # mediamtx (não distribuído via apt) — release oficial do GitHub, build amd64.
 # Mesma versão usada no Pi (scripts/install_mediamtx.sh, lá com asset armv7).
 ARG MEDIAMTX_VERSION=v1.19.2
+# SHA-256 do asset linux_amd64 para v1.19.2 — atualizar ao trocar MEDIAMTX_VERSION.
+ARG MEDIAMTX_SHA256=f9c601cc303ceca8fad2883917b022882672c5bc56311e92dbceb16e5f20c60c
 RUN mkdir -p /app/bin \
     && curl -sL -o /tmp/mediamtx.tar.gz \
         "https://github.com/bluenviron/mediamtx/releases/download/${MEDIAMTX_VERSION}/mediamtx_${MEDIAMTX_VERSION}_linux_amd64.tar.gz" \
+    && echo "${MEDIAMTX_SHA256}  /tmp/mediamtx.tar.gz" | sha256sum -c - \
     && tar -xzf /tmp/mediamtx.tar.gz -C /app/bin mediamtx \
     && chmod +x /app/bin/mediamtx \
     && rm /tmp/mediamtx.tar.gz

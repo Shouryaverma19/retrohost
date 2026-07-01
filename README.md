@@ -96,24 +96,24 @@ The build compiles PCSX-ReARMed from source (PS1 core) — expect ~10 minutes on
 ```bash
 # No GPU — works on any machine (libx264 software encoder)
 docker run -d --name retrohost --privileged \
-  -e RETROHOST_WEBRTC_HOST=<YOUR_LAN_IP> \
+  -e HOMEGAMES_WEBRTC_HOST=<YOUR_LAN_IP> \
   -p 8000:8000 -p 8889:8889 -p 8554:8554 -p 8189:8189/udp \
   -v retrohost-data:/data retrohost
 
 # NVIDIA GPU (NVENC) — requires nvidia-container-toolkit on host
 docker run -d --name retrohost --privileged --gpus all \
-  -e RETROHOST_WEBRTC_HOST=<YOUR_LAN_IP> \
+  -e HOMEGAMES_WEBRTC_HOST=<YOUR_LAN_IP> \
   -p 8000:8000 -p 8889:8889 -p 8554:8554 -p 8189:8189/udp \
   -v retrohost-data:/data retrohost
 
 # Intel / AMD GPU (VAAPI/QSV)
 docker run -d --name retrohost --privileged --device /dev/dri \
-  -e RETROHOST_WEBRTC_HOST=<YOUR_LAN_IP> \
+  -e HOMEGAMES_WEBRTC_HOST=<YOUR_LAN_IP> \
   -p 8000:8000 -p 8889:8889 -p 8554:8554 -p 8189:8189/udp \
   -v retrohost-data:/data retrohost
 ```
 
-> **`RETROHOST_WEBRTC_HOST`** must be the LAN IP of the host machine (e.g. `192.168.1.100`). Without it, WebRTC ICE candidates will advertise the container's internal IP (`172.17.x.x`) and video will not reach other devices on your network.
+> `HOMEGAMES_WEBRTC_HOST` must be the LAN IP of the host machine (e.g. `192.168.1.100`). Without it, WebRTC ICE candidates will advertise the container's internal IP (`172.17.x.x`) and video will not reach other devices on your network.
 
 ### 3. Configure storage and play
 
@@ -210,7 +210,7 @@ All configuration is via environment variables. Docker defaults are in the `Dock
 | `HOMEGAMES_ROOT` | auto-detected | Root directory of the project |
 | `HOMEGAMES_ENCODER` | `h264_v4l2m2m` (Pi) / `auto` (Docker) | Video encoder. `auto` probes nvenc → qsv → vaapi → libx264 |
 | `HOMEGAMES_RENDER_NODE` | `/dev/dri/renderD128` | DRM render node for VAAPI/QSV encoders |
-| `RETROHOST_WEBRTC_HOST` | _(unset)_ | LAN IP to announce in WebRTC ICE candidates. **Required** for multi-device access |
+| `HOMEGAMES_WEBRTC_HOST` | _(unset)_ | LAN IP to announce in WebRTC ICE candidates. **Required** for multi-device access |
 | `HOMEGAMES_INPUT_PROVIDER` | `uinput` (Pi) / `sdl` (Docker) | Input backend: `uinput` (Linux udev) or `sdl` (SDL2 virtual joystick) |
 | `HOMEGAMES_DB_PATH` | `backend/homegames.db` | SQLite database path |
 | `HOMEGAMES_STORAGE_CONFIG` | `config/storage.json` | ROM storage config (auto-written by the API) |

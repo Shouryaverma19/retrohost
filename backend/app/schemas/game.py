@@ -25,6 +25,7 @@ class ScanResult(BaseModel):
     scanned: int
     added: int
     updated: int
+    removed: int = 0
     games: list[GameRead]
 
 
