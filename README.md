@@ -2,9 +2,32 @@
 
 > Self-hosted retro game streaming over WebRTC — no client install required. Open your browser, pick a game, play.
 
-RetroHost turns a Raspberry Pi (or any x86_64 PC) into a local game streaming server. The emulator runs on the server; the browser receives compressed video and sends back input. Same principle as Steam Link — but open source, self-hosted, and works on hardware you already own.
+RetroHost turns a Raspberry Pi or an older PC into a shared retro console for every screen in your home. Games run centrally on the host; TVs, phones, tablets, and computers connect using only a modern web browser — no client application, no emulator installation, no device pairing.
 
 **⚠️ LAN-only by design.** There is no authentication. Never expose RetroHost ports to the internet or deploy on a public cloud server. Read [SECURITY.md](SECURITY.md) before use.
+
+---
+
+## What makes RetroHost different
+
+RetroHost is not a general-purpose desktop streaming tool or a multi-session gaming server. Its goal is deliberately narrower: a lightweight, self-hosted retro gaming appliance for your local network.
+
+**Unlike desktop-streaming solutions** (Sunshine, Wolf), RetroHost does not capture an X11 or Wayland desktop. RetroArch runs headlessly and writes audio and video directly into the streaming pipeline. This makes it suitable for lightweight Linux installations and resource-constrained hardware without a graphical desktop environment.
+
+**What RetroHost focuses on:**
+
+- Reusing Raspberry Pis and older computers that would otherwise sit idle
+- Playing directly from smart TVs and other browser-enabled devices
+- A browser-only client — nothing to install or pair
+- Headless operation without X11, Wayland, or a physical display connected
+- An integrated ROM library with local and network storage support
+- Simple, single-session use within a trusted home network
+- Automatic selection of hardware or software video encoding
+- A small, understandable architecture that is easy to read and modify
+
+Projects such as [Sunshine](https://github.com/LizardByte/Sunshine), [Wolf](https://github.com/games-on-whales/wolf), and [Pod Arcade](https://github.com/pod-arcade/pod-arcade) provide broader streaming capabilities, including remote access, multiple simultaneous sessions, and general-purpose application streaming. RetroHost occupies a narrower niche and does not aim to replace them — it explores a different trade-off: less infrastructure and fewer moving parts in exchange for a focused "open a browser and play" experience on hardware you already own.
+
+> **Legal note:** RetroHost is an emulation and streaming tool. It does not include, distribute, or provide access to any game ROMs or console BIOS files. You are responsible for ensuring that any content you run through RetroHost complies with applicable copyright law. See [SECURITY.md](SECURITY.md) for details.
 
 ---
 
