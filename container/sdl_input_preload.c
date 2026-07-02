@@ -1,4 +1,4 @@
-/* LD_PRELOAD para o RetroArch no container HomeGames.
+/* LD_PRELOAD para o RetroArch no container RetroHost.
  *
  * Motivo: no WSL2 não há udevd, então o input via uinput/udev não funciona
  * (o libudev não enumera os devices). Este preload contorna isso criando um

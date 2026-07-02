@@ -147,7 +147,7 @@ authJWTAudience:
 # Global settings -> Control API
 
 # Enable the control API server, which allows to control the server.
-# Habilitado: o backend HomeGames usa GET /v3/paths/get/live para saber
+# Habilitado: o backend RetroHost usa GET /v3/paths/get/live para saber
 # quando o ffmpeg terminou de publicar antes de liberar o WHEP ao frontend.
 api: true
 # Address of the TCP/HTTP listener.

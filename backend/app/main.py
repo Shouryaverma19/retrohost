@@ -7,7 +7,7 @@ from app.api.ws_input import router as ws_input_router
 from app.core.config import settings
 from app.db.database import init_db
 
-app = FastAPI(title="HomeGames")
+app = FastAPI(title="RetroHost")
 
 init_db()
 

@@ -55,7 +55,7 @@ Projects such as [Sunshine](https://github.com/LizardByte/Sunshine), [Wolf](http
 
 ## How it works
 
-RetroHost is a **server-side emulation streaming** system. The emulator (RetroArch + libretro core) runs headless on the server and writes raw video + audio to a named pipe. FFmpeg reads that pipe, encodes H.264 + Opus, and publishes RTSP to MediaMTX, which delivers the stream to any browser via WebRTC (WHEP). The browser captures keyboard/gamepad input and sends it back over a WebSocket, which the server injects as a virtual input device.
+RetroHost is a **server-side emulation streaming** system. The emulator (RetroArch + libretro core) runs headless on the server and writes raw video + audio to a named pipe. FFmpeg reads that pipe, encodes H.264 + Opus, and publishes RTSP to MediaMTX, which delivers the stream to any browser via WebRTC (WHEP) — over two independent connections, one for video and one for audio (see [ARCHITECTURE.md](ARCHITECTURE.md#21-why-two-webrtc-connections-videoaudio-split)). The browser captures keyboard/gamepad input and sends it back over a WebSocket, which the server injects as a virtual input device.
 
 No browser plugin. No client app. No JavaScript framework. Just native browser APIs: `RTCPeerConnection`, `Gamepad API`, `WebSocket`.
 
@@ -95,11 +95,13 @@ For a full component-by-component breakdown, design decisions, and replication g
 
 Measured via `RTCPeerConnection.getStats()` on the client browser.
 
+Video and audio are delivered over **two independent WebRTC (WHEP) connections** rather than two tracks on one connection — see [ARCHITECTURE.md](ARCHITECTURE.md#21-why-two-webrtc-connections-videoaudio-split) for why. The numbers below are for the **video** connection, which is what drives perceived input latency.
+
 | Hardware | Encoder | jitter buffer delay | Notes |
-|---|---|---|---|
-| Raspberry Pi 3 | h264_v4l2m2m (HW) | ~145 ms | Hardware limit; residual input delay ~376 ms |
-| x86_64 + NVIDIA RTX 4050 | h264_nvenc (NVENC) | ~93 ms | ~36% lower latency vs Pi 3 |
-| x86_64 (no GPU) | libx264 (CPU) | ~120–160 ms | Varies by CPU; functional but heavier load |
+| --- | --- | --- | --- |
+| Raspberry Pi 3 | h264_v4l2m2m (HW) | ~16 ms | Measured after the video/audio WHEP split; audio connection buffers separately at ~89 ms, not synchronized with video |
+| x86_64 + NVIDIA RTX 4050 | h264_nvenc (NVENC) | ~93 ms | Measured before the video/audio split (single connection); expected to drop similarly with the split, not yet re-measured |
+| x86_64 (no GPU) | libx264 (CPU) | ~120–160 ms | Varies by CPU; functional but heavier load; measured before the video/audio split |
 
 Input round-trip (WebSocket send → emulator reaction) is sub-millisecond on the server side; perceived input latency is dominated by the video pipeline delay above.
 

@@ -1,4 +1,4 @@
-"""Configuração central do HomeGames.
+"""Configuração central do RetroHost.
 
 Todos os caminhos derivam de PROJECT_ROOT, que por padrão assume o layout
 padrão do Raspberry Pi (/home/YOUR_USER/retrohost). Pode ser sobrescrito pela

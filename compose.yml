@@ -44,8 +44,9 @@ services:
 
     volumes:
       - retrohost-data:/data
-      # To use local ROMs instead of CIFS network storage:
-      # - /path/to/your/roms:/mnt/retrohost-roms:ro
+      # To use local ROMs instead of CIFS network storage, mount your ROMs
+      # directory at the path the backend scans in local mode (ROMS_DIR):
+      # - /path/to/your/roms:/app/emulator/roms:ro
 
 volumes:
   retrohost-data:
