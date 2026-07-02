@@ -14,7 +14,7 @@ if ! grep -q "^hdmi_force_hotplug=1" "$BOOT_CONFIG"; then
     sudo cp "$BOOT_CONFIG" "${BOOT_CONFIG}.bak.$(date +%s)"
     sudo tee -a "$BOOT_CONFIG" > /dev/null <<'EOF'
 
-# HomeGames: forca deteccao de display mesmo sem TV/monitor conectado fisicamente
+# RetroHost: forca deteccao de display mesmo sem TV/monitor conectado fisicamente
 # (necessario para RetroArch renderizar offscreen para captura/streaming headless)
 hdmi_force_hotplug=1
 hdmi_group=2

@@ -44,8 +44,11 @@ Same principle as Steam Link, Moonlight, or Stadia: capture, encode, transmit, d
 └─────────────────────────────────────────────────────────────────────────┼──┼───┘
                                                                           │  │
                   Browser ───── WebSocket (input) ────────────────────────┘  │
-                          ◄──── WebRTC video+audio (WHEP) ───────────────────┘
+                          ◄──── WebRTC video (WHEP) ────────────────────────┘
+                          ◄──── WebRTC audio (WHEP, separate connection) ────┘
 ```
+
+Video and audio are fetched over **two independent WHEP requests / `RTCPeerConnection`s**, not two tracks on one connection — see "Why two WebRTC connections" below.
 
 ---
 
@@ -66,7 +69,25 @@ Same principle as Steam Link, Moonlight, or Stadia: capture, encode, transmit, d
 - `-bf 0` is set on **all** encoder profiles. WebRTC rejects H.264 streams that contain B-frames ("WebRTC doesn't support H264 streams with B-frames"). `-tune zerolatency` in libx264 is supposed to disable them but is not guaranteed across all builds — explicit `-bf 0` is the reliable fix.
 - `-fflags nobuffer -flags low_delay` and `-fps_mode passthrough` reduce buffering latency.
 - GOP of 15 frames (`-g 15`) was validated to reduce jitter buffer from ~200 ms to ~100 ms on the Pi.
+- `-af aresample=async=1000:first_pts=0` resamples audio to a constant rate anchored at PTS 0, compensating for drift introduced by the FIFO/Matroska path now that audio and video are consumed by two independent WebRTC connections (see below) with no shared clock to resync them.
 - Implemented in `backend/app/streaming/ffmpeg_webrtc.py` (`FFmpegStreamingProvider`).
+
+### 2.1 Why two WebRTC connections (video/audio split)
+
+Initially, a single `RTCPeerConnection` carried both the video and audio tracks (two transceivers on one connection), matching how WHEP is normally used. Measured with `RTCPeerConnection.getStats()` on the Pi 3, this configuration showed a **video jitter buffer of ~289-459 ms** — far above what the encoder alone accounts for (see "Known hardware limits" below).
+
+Root cause: when audio and video share one `RTCPeerConnection`, the browser's jitter buffer logic holds the video queue back to preserve lip-sync with the audio track's own (larger) buffering requirements — inflating video latency to match audio, not the other way around.
+
+**Fix**: the frontend opens two independent WHEP requests against the same `whep_url`, each negotiating a single `recvonly` transceiver (`connectWhepTrack("video", ...)` and `connectWhepTrack("audio", ...)` in `frontend/app.js`), resulting in two separate `RTCPeerConnection`s and two `<video>`/`<audio>` elements. Measured result on the same Pi 3 hardware:
+
+| Connection | buffer_ms | jitter_ms |
+| --- | --- | --- |
+| video | ~16 | ~7 |
+| audio | ~89 | ~10 |
+
+Video latency dropped roughly 94% (289-459 ms → ~16 ms). Audio keeps a higher buffer (expected — audio glitches are more perceptible than a few extra ms of buffering), and the two connections are no longer synchronized by the browser. The ~70 ms gap between video and audio buffers is below the ITU-R BT.1359 perceptibility threshold (~125 ms) and was not noticeable in manual play-testing, but there is no hard guarantee against drift over a long play session — if this becomes noticeable, periodic resync (e.g. comparing `HTMLMediaElement.currentTime` between the two elements) would be the next step.
+
+Audio failing to connect (`connectWhepTrack("audio", ...)` throwing) is treated as non-fatal — the game keeps running with video only rather than failing `/play` entirely.
 
 ### 3. MediaMTX (WebRTC/WHEP server)
 

@@ -32,7 +32,7 @@ class UInputNotAvailableError(RuntimeError):
 
 
 class UInputKeyboardProvider(InputProvider):
-    def __init__(self, device_name: str = "HomeGames Virtual Keyboard") -> None:
+    def __init__(self, device_name: str = "RetroHost Virtual Keyboard") -> None:
         self._device_name = device_name
         self._device = None
         self._pressed_keys: set[str] = set()

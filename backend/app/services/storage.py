@@ -1,4 +1,4 @@
-"""Configura de onde o HomeGames lê ROMs: disco local (padrão) ou um share
+"""Configura de onde o RetroHost lê ROMs: disco local (padrão) ou um share
 de rede CIFS/Samba montado sob demanda no sistema operacional do Pi.
 
 RetroArchDriver/PlayerService não sabem nem precisam saber qual modo está

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Entrypoint do container HomeGames (ver Dockerfile / ARCHITECTURE.md).
+# Entrypoint do container RetroHost (ver Dockerfile / ARCHITECTURE.md).
 #
 # Substitui os dois systemd units do Pi (mediamtx.service + homegames.service)
 # por um supervisor leve: sobe o mediamtx em background e o uvicorn em foreground,

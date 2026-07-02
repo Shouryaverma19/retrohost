@@ -1,4 +1,4 @@
-# HomeGames — imagem containerizada AGNÓSTICA DE GPU para Linux x86_64.
+# RetroHost — imagem containerizada AGNÓSTICA DE GPU para Linux x86_64.
 #
 # Replica o pipeline do Raspberry Pi (RetroArch headless -> FIFO -> ffmpeg ->
 # mediamtx -> WebRTC + input + FastAPI), mas a MESMA imagem roda em qualquer
@@ -73,7 +73,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # mas não foi validado — ver SECURITY.md / ARCHITECTURE.md.
 RUN arch="$(uname -m)"; \
     if [ "$arch" != "x86_64" ]; then \
-        echo "ERRO: HomeGames container é x86_64-only; arquitetura detectada: $arch." >&2; \
+        echo "ERRO: RetroHost container é x86_64-only; arquitetura detectada: $arch." >&2; \
         echo "Builde numa máquina/plataforma amd64 (ou use --platform linux/amd64)." >&2; \
         exit 1; \
     fi

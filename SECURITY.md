@@ -1,12 +1,12 @@
 # Segurança, limitações e uso responsável
 
-O HomeGames é um projeto **doméstico**, pensado para rodar **dentro da sua rede local (LAN)** — um servidor de jogos retrô que você acessa pelo navegador de outros dispositivos da sua casa. Esta seção é honesta sobre o que isso implica em segurança, quais são os riscos conhecidos, e o que você **não** deve fazer.
+O RetroHost é um projeto **doméstico**, pensado para rodar **dentro da sua rede local (LAN)** — um servidor de jogos retrô que você acessa pelo navegador de outros dispositivos da sua casa. Esta seção é honesta sobre o que isso implica em segurança, quais são os riscos conhecidos, e o que você **não** deve fazer.
 
 ## ⚠️ Não exponha à internet / não suba em cloud pública
 
 **Não há autenticação em nenhuma rota.** Qualquer pessoa que alcance a porta `8000` (e as portas de mídia) pode listar/iniciar/parar jogos, configurar storage e enviar input. Isso é aceitável numa LAN doméstica de confiança, mas significa:
 
-- **Nunca exponha as portas do HomeGames diretamente à internet** (port forwarding no roteador, IP público, etc.).
+- **Nunca exponha as portas do RetroHost diretamente à internet** (port forwarding no roteador, IP público, etc.).
 - **Nunca suba este container em um provedor de cloud público** (AWS, GCP, Azure, VPS, etc.) com as portas acessíveis. Sem autenticação e com privilégios elevados (ver abaixo), seria um alvo trivial.
 - Se você *precisa* acessar de fora de casa, use uma **VPN** para entrar na sua LAN — não exponha o serviço.
 
@@ -36,10 +36,10 @@ O backend monta CIFS executando `mount` com parâmetros vindos da interface web.
 
 **Este projeto não distribui, não inclui e não fornece BIOS ou ROMs de jogos.**
 
-- A **BIOS** de consoles (ex: PS1) é propriedade do fabricante. Você deve **extraí-la do seu próprio console** ou obtê-la de forma legal. O HomeGames apenas lê a BIOS que *você* colocar no storage.
+- A **BIOS** de consoles (ex: PS1) é propriedade do fabricante. Você deve **extraí-la do seu próprio console** ou obtê-la de forma legal. O RetroHost apenas lê a BIOS que *você* colocar no storage.
 - As **ROMs** dos jogos são propriedade dos respectivos detentores de direitos. Você deve **possuir uma cópia legal** do jogo (geralmente, fazer o *dump* da sua própria mídia física). Baixar ROMs de jogos que você não possui é ilegal na maioria das jurisdições.
 
-O HomeGames é uma ferramenta de **streaming/emulação da sua própria biblioteca legal** — não um meio de distribuir conteúdo protegido. O uso para pirataria não é apoiado e é de inteira responsabilidade de quem o faz.
+O RetroHost é uma ferramenta de **streaming/emulação da sua própria biblioteca legal** — não um meio de distribuir conteúdo protegido. O uso para pirataria não é apoiado e é de inteira responsabilidade de quem o faz.
 
 ## Resumo: uso recomendado
 
