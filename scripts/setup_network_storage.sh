@@ -18,6 +18,9 @@ sudo apt-get install -y cifs-utils
 echo "==> Garantindo ponto de montagem $MOUNT_POINT"
 sudo mkdir -p "$MOUNT_POINT"
 
+echo "==> Garantindo diretorio /etc/samba (destino do arquivo de credenciais CIFS)"
+sudo mkdir -p /etc/samba
+
 echo "==> Instalando regra sudoers (mount/umount com escopo minimo)"
 if [[ ! -f "$SUDOERS_DEST" ]] || ! diff -q "$SUDOERS_SRC" "$SUDOERS_DEST" >/dev/null 2>&1; then
     TMP_SUDOERS="$(mktemp)"

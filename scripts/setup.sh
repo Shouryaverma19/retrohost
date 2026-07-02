@@ -10,9 +10,10 @@
 #   3. Baixa o MediaMTX (servidor WebRTC/WHEP)
 #   4. Instala e configura o input remoto via uinput
 #   5. Cria e instala o venv Python com as dependências do backend
-#   6. Instala os serviços systemd (mediamtx + retrohost)
-#   7. (Opcional) Configura storage de ROMs via rede (CIFS/Samba)
-#   8. Inicia os serviços e valida a instalação
+#   6. Compila o core PS1 (PCSX-ReARMed) do source, se ainda não presente
+#   7. Instala os serviços systemd (mediamtx + retrohost)
+#   8. (Opcional) Configura storage de ROMs via rede (CIFS/Samba)
+#   9. Inicia os serviços e valida a instalação
 #
 # Idempotente: pode ser executado mais de uma vez sem problemas.
 # Requer sudo para: apt-get, systemd, udev, sudoers, /boot/firmware/config.txt
@@ -247,7 +248,55 @@ fi
 ok "Dependências instaladas (fastapi, uvicorn, sqlalchemy, pydantic...)"
 
 # ---------------------------------------------------------------------------
-# 8. Configurar cores.json
+# 8. Compilar PCSX-ReARMed (core PS1), se ainda não presente
+# ---------------------------------------------------------------------------
+# PCSX-ReARMed não tem pacote apt no Raspberry Pi OS (diferente do Beetle PSX
+# usado no Docker/x86_64) e é bem mais leve para o hardware do Pi, então
+# compilamos do source direto para emulator/cores/.
+PS1_CORE_DEST="$PROJECT_ROOT/emulator/cores/pcsx_rearmed_libretro.so"
+
+if [[ ! -f "$PS1_CORE_DEST" ]]; then
+    info "Compilando core PS1 (PCSX-ReARMed) do source..."
+
+    sudo apt-get install -y --no-install-recommends build-essential git -qq
+
+    # Mapeia modelo do Pi + arquitetura para o alvo 'platform=' do Makefile.
+    # Ver Makefile.libretro do pcsx_rearmed para a lista de plataformas.
+    PI_MODEL="$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || echo '')"
+    PCSX_PLATFORM=""
+    case "$PI_MODEL" in
+        *"Raspberry Pi 5"*)   PCSX_PLATFORM="rpi4_64" ;;   # sem alvo dedicado; rpi4_64 é o mais próximo (arm64, ari64)
+        *"Raspberry Pi 4"*)   [[ "$ARCH" == "aarch64" ]] && PCSX_PLATFORM="rpi4_64" || PCSX_PLATFORM="rpi4" ;;
+        *"Raspberry Pi 3"*)   [[ "$ARCH" == "aarch64" ]] && PCSX_PLATFORM="rpi3_64" || PCSX_PLATFORM="rpi3" ;;
+        *"Raspberry Pi 2"*)   PCSX_PLATFORM="rpi2" ;;
+        *"Raspberry Pi Model"*|*"Raspberry Pi Zero"*) PCSX_PLATFORM="rpi1" ;;
+        *)
+            warn "Modelo de Pi não reconhecido ('$PI_MODEL') — usando alvo genérico."
+            [[ "$ARCH" == "aarch64" ]] && PCSX_PLATFORM="rpi3_64" || PCSX_PLATFORM="rpi2"
+            ;;
+    esac
+    ok "Alvo de build detectado: platform=$PCSX_PLATFORM ($PI_MODEL, $ARCH)"
+
+    PCSX_SRC_DIR="$PROJECT_ROOT/emulator/pcsx_rearmed_src"
+    if [[ ! -d "$PCSX_SRC_DIR" ]]; then
+        git clone --depth 1 --recursive \
+            https://github.com/libretro/pcsx_rearmed.git "$PCSX_SRC_DIR"
+    fi
+
+    if ( cd "$PCSX_SRC_DIR" && make -f Makefile.libretro "platform=$PCSX_PLATFORM" -j"$(nproc)" ); then
+        mkdir -p "$PROJECT_ROOT/emulator/cores"
+        cp "$PCSX_SRC_DIR/pcsx_rearmed_libretro.so" "$PS1_CORE_DEST"
+        ok "Core PS1 compilado: $PS1_CORE_DEST"
+    else
+        error "Falha ao compilar PCSX-ReARMed. Veja $PCSX_SRC_DIR para depurar."
+        warn "cores.json ficará sem 'ps1' — configure manualmente depois."
+    fi
+else
+    ok "Core PS1 já compilado ($PS1_CORE_DEST)"
+fi
+
+# ---------------------------------------------------------------------------
+# 9. Configurar cores.json
 # ---------------------------------------------------------------------------
 info "Configurando mapeamento de cores libretro..."
 
@@ -270,9 +319,8 @@ if [[ ! -f "$CORES_JSON" ]]; then
     PS1_CORE=""
     SNES_CORE=""
 
-    # PS1: primeiro tenta o compilado localmente, depois o apt
-    [[ -f "$PROJECT_ROOT/emulator/cores/pcsx_rearmed_libretro.so" ]] && \
-        PS1_CORE="$PROJECT_ROOT/emulator/cores/pcsx_rearmed_libretro.so"
+    # PS1: primeiro o compilado acima, depois qualquer core PS1 já instalado via apt
+    [[ -f "$PS1_CORE_DEST" ]] && PS1_CORE="$PS1_CORE_DEST"
     [[ -z "$PS1_CORE" && -n "$LIBRETRO_DIR" && -f "$LIBRETRO_DIR/pcsx_rearmed_libretro.so" ]] && \
         PS1_CORE="$LIBRETRO_DIR/pcsx_rearmed_libretro.so"
 
@@ -315,7 +363,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 9. (Opcional) Storage de ROMs via rede (CIFS/Samba)
+# 10. (Opcional) Storage de ROMs via rede (CIFS/Samba)
 # ---------------------------------------------------------------------------
 echo ""
 ask "Configurar storage de ROMs via rede (CIFS/Samba)? [s/N]: "
@@ -351,7 +399,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 10. Instalar serviços systemd
+# 11. Instalar serviços systemd
 # ---------------------------------------------------------------------------
 info "Instalando serviços systemd..."
 
@@ -376,7 +424,7 @@ sudo systemctl enable mediamtx homegames
 ok "Serviços habilitados para iniciar no boot"
 
 # ---------------------------------------------------------------------------
-# 11. Iniciar serviços
+# 12. Iniciar serviços
 # ---------------------------------------------------------------------------
 info "Iniciando serviços..."
 
@@ -401,7 +449,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 12. Validação final
+# 13. Validação final
 # ---------------------------------------------------------------------------
 info "Validando instalação..."
 

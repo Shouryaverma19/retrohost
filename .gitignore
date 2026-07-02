@@ -42,6 +42,9 @@ emulator/states/*
 # Binários de terceiros baixados via script (não versionados, ver scripts/install_mediamtx.sh)
 bin/
 
+# Source clonado para compilar o core PS1 (ver scripts/setup.sh)
+emulator/pcsx_rearmed_src/
+
 # Certificado autoassinado gerado automaticamente pelo mediamtx (servidor MOQ opcional)
 auto.crt
 auto.key
