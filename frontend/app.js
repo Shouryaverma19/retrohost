@@ -20,7 +20,14 @@ const cifsUsernameInput = document.getElementById("cifs-username");
 const cifsPasswordInput = document.getElementById("cifs-password");
 
 let whepUrl = null;
-let peerConnection = null;
+//let peerConnection = null; -- 
+
+const gameVideo = document.getElementById("game-video");
+const gameAudio = document.getElementById("game-audio");
+
+let whepUrl = null;
+let videoPeerConnection = null;
+let audioPeerConnection = null;
 
 // Mesmo vocabulario do backend (backend/app/input/keymap.py) - nomes
 // logicos que correspondem aos binds input_player1_* do RetroArch.
@@ -211,6 +218,35 @@ async function scanLibrary() {
     }
 }
 
+async function connectWhepTrack(kind, onTrack) {
+    const pc = new RTCPeerConnection();
+
+    pc.ontrack = onTrack;
+    pc.addTransceiver(kind, { direction: "recvonly" });
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+
+    const response = await fetch(whepUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/sdp" },
+        body: offer.sdp,
+    });
+
+    if (!response.ok) {
+        pc.close();
+        throw new Error(`WHEP ${kind} falhou: ${response.status}`);
+    }
+
+    const answerSdp = await response.text();
+    await pc.setRemoteDescription({
+        type: "answer",
+        sdp: answerSdp,
+    });
+
+    return pc;
+}
+
 function showPlayView() {
     idleView.classList.add("hidden");
     playView.classList.remove("hidden");
@@ -225,38 +261,41 @@ async function connectWhep() {
     if (!whepUrl) {
         await loadConfig();
     }
-    const pc = new RTCPeerConnection();
-    peerConnection = pc;
 
-    pc.ontrack = (event) => {
-        gameVideo.srcObject = event.streams[0];
-    };
-    pc.addTransceiver("video", { direction: "recvonly" });
-    pc.addTransceiver("audio", { direction: "recvonly" });
-
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-
-    const resp = await fetch(whepUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/sdp" },
-        body: offer.sdp,
+    videoPeerConnection = await connectWhepTrack("video", (event) => {
+        gameVideo.srcObject = new MediaStream([event.track]);
     });
 
-    if (!resp.ok) {
-        throw new Error(`WHEP falhou: ${resp.status}`);
-    }
+    try {
+        audioPeerConnection = await connectWhepTrack("audio", (event) => {
+            gameAudio.srcObject = new MediaStream([event.track]);
 
-    const answerSdp = await resp.text();
-    await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
+            gameAudio.play().catch((error) => {
+                console.warn("Autoplay do áudio bloqueado:", error);
+            });
+        });
+    } catch (error) {
+        // Falha do áudio não deve impedir o jogo.
+        console.warn("Conexão de áudio indisponível:", error);
+        audioPeerConnection = null;
+    }
 }
 
 function disconnectWhep() {
-    if (peerConnection) {
-        peerConnection.close();
-        peerConnection = null;
+    if (videoPeerConnection) {
+        videoPeerConnection.close();
+        videoPeerConnection = null;
     }
+
+    if (audioPeerConnection) {
+        audioPeerConnection.close();
+        audioPeerConnection = null;
+    }
+
     gameVideo.srcObject = null;
+
+    gameAudio.pause();
+    gameAudio.srcObject = null;
 }
 
 function connectInputSocket() {

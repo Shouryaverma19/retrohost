@@ -56,6 +56,7 @@ class FFmpegStreamingProvider(StreamingProvider):
             "-fps_mode", "passthrough",
             *profile.filter_args,
             *profile.codec_args,
+            "-af", "aresample=async=1000:first_pts=0",
             "-c:a", "libopus", "-b:a", "96k",
             "-pkt_size", "1200",
             "-f", "rtsp", settings.MEDIAMTX_RTSP_URL,
