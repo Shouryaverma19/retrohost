@@ -358,6 +358,14 @@ if [[ ! -f "$CORES_JSON" ]]; then
         warn "Edite $CORES_JSON manualmente com os paths dos seus cores .so"
         warn "Exemplo em $CORES_EXAMPLE"
     fi
+elif grep -q "YOUR_USER\|/home/USER/" "$CORES_JSON"; then
+    # cores.json foi copiado manualmente do .example e ainda tem o placeholder
+    # de usuário — substitui pelo usuário real em vez de deixar o path quebrado.
+    sed -i \
+        -e "s|YOUR_USER|$INSTALL_USER|g" \
+        -e "s|/home/USER/|/home/$INSTALL_USER/|g" \
+        "$CORES_JSON"
+    ok "cores.json já existia com placeholder de usuário — corrigido para '$INSTALL_USER'"
 else
     ok "cores.json já existe — mantendo"
 fi
