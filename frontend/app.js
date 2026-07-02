@@ -4,6 +4,7 @@ const scanBtn = document.getElementById("scan-btn");
 const idleView = document.getElementById("idle-view");
 const playView = document.getElementById("play-view");
 const gameVideo = document.getElementById("game-video");
+const gameAudio = document.getElementById("game-audio");
 const fullscreenBtn = document.getElementById("fullscreen-btn");
 const endGameBtn = document.getElementById("end-game-btn");
 const backgroundGameBanner = document.getElementById("background-game-banner");
@@ -22,10 +23,6 @@ const cifsPasswordInput = document.getElementById("cifs-password");
 let whepUrl = null;
 //let peerConnection = null; -- 
 
-const gameVideo = document.getElementById("game-video");
-const gameAudio = document.getElementById("game-audio");
-
-let whepUrl = null;
 let videoPeerConnection = null;
 let audioPeerConnection = null;
 
