@@ -94,7 +94,7 @@ Audio failing to connect (`connectWhepTrack("audio", ...)` throwing) is treated 
 - Receives RTSP from ffmpeg, exposes the stream via WHEP for browsers.
 - Runs as an always-on process (`mediamtx.service`), independent of game sessions.
 - Its control API (`localhost:9997`) is polled by the backend to confirm the stream is live before returning `200` to `/play`. Without this, the browser connects via WHEP before ffmpeg finishes publishing → black screen (real race condition observed and fixed via `PlayerService._wait_stream_ready()`).
-- `webrtcAdditionalHosts` in `mediamtx.yml` is injected at container startup with the host's LAN IP (`RETROHOST_WEBRTC_HOST`). Without it, MediaMTX announces the container's internal IP (`172.17.x.x`) in ICE candidates, unreachable by other LAN devices.
+- `webrtcAdditionalHosts` in `mediamtx.yml` is injected at container startup with the host's LAN IP (`HOMEGAMES_WEBRTC_HOST`). Without it, MediaMTX announces the container's internal IP (`172.17.x.x`) in ICE candidates, unreachable by other LAN devices.
 
 ### 4. Input subsystem
 
@@ -120,7 +120,7 @@ Two backend implementations, selected by `HOMEGAMES_INPUT_PROVIDER`:
 ### 5. ROM storage
 
 - Default: `emulator/roms/` on the server's local disk.
-- Optional: CIFS/Samba network share (e.g. a USB drive shared by an OpenWrt router). Mounted via `sudo mount -t cifs` into a fixed mount point (`/mnt/retrohost-roms`).
+- Optional: CIFS/Samba network share (e.g. a USB drive shared by an OpenWrt router). Mounted via `sudo mount -t cifs` into a fixed mount point (`/mnt/homegames-roms`).
 - Privilege scope is minimized: a sudoers rule (`config/sudoers/homegames-mount`) allows only the exact `mount`/`umount` command to the fixed destination, not unrestricted sudo.
 - Samba credentials are written to a `chmod 600` file, never stored in `config/storage.json` or returned by `GET /config`.
 - Switching storage modes clears the game catalog and re-scans — `launch_file` is stored as an absolute path; if the root changes, old entries become orphaned. Relative-path migration would be over-engineering for a single-user home project.
@@ -251,9 +251,13 @@ retrohost/
 │   ├── mediamtx.service               # systemd unit (MediaMTX)
 │   ├── stream_pipeline.sh             # manual pipeline test (debug)
 │   └── whep_test.html                 # standalone WHEP player (debug)
+├── tests/
+│   └── unit/                          # pytest suite (cross-platform, mocked)
 ├── Dockerfile
+├── compose.yml                        # docker compose alternative to docker run
 ├── docker-run.sh                      # docker run helper (Linux)
 ├── docker-run-windows.sh              # docker run helper (Windows/WSL2)
+├── pytest.ini
 ├── README.md
 ├── ARCHITECTURE.md                    # this file
 ├── CONTRIBUTING.md
@@ -281,7 +285,7 @@ sudo apt-get install -y retroarch ffmpeg python3-venv git
 ### Step 2 — Clone and install
 
 ```bash
-git clone <repo-url> ~/retrohost
+git clone https://github.com/vitorfranklin/retrohost.git ~/retrohost
 cd ~/retrohost/backend
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt

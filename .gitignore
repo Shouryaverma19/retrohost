@@ -63,3 +63,6 @@ container/*.so
 .claude/
 instucoes.md
 .pytest_tmp/
+
+# Personal notes (local only)
+instucoes.md
