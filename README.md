@@ -30,7 +30,7 @@ Unlike general-purpose desktop-streaming platforms, RetroHost does not create vi
 
 Projects such as [Sunshine](https://github.com/LizardByte/Sunshine), [Wolf](https://github.com/games-on-whales/wolf), and [Pod Arcade](https://github.com/pod-arcade/pod-arcade) address broader streaming scenarios — remote access, multiple simultaneous sessions, virtual desktops, or general-purpose application streaming. RetroHost occupies a deliberately narrower niche and does not aim to replace them. It trades multi-user infrastructure and remote-access features for a focused home-console experience:
 
-*One retro console. Every browser-enabled screen in your home. Pick up where you left off.*
+_One retro console. Every browser-enabled screen in your home. Pick up where you left off._
 
 > RetroHost does not include, distribute, or provide access to game ROMs or console BIOS files. Users are responsible for supplying their own legally obtained content. See [SECURITY.md](SECURITY.md).
 
@@ -63,7 +63,7 @@ No browser plugin. No client app. No JavaScript framework. Just native browser A
 
 ## Architecture & Pipeline
 
-```
+```text
 ┌─────────────────────────── Server (Pi or x86_64) ─────────────────────────────┐
 │                                                                                  │
 │  RetroArch (headless, video_driver=null)                                        │
@@ -200,7 +200,7 @@ At the end it prints the URL to open in your browser and any remaining manual st
 
 ### 3. Place your ROMs and play
 
-```
+```text
 emulator/roms/
   ps1/
     Magic Castle/
@@ -244,7 +244,7 @@ curl http://localhost:8000/health
 All configuration is via environment variables. Docker defaults are in the `Dockerfile`; Pi defaults are in `backend/app/core/config.py`.
 
 | Variable | Default | Description |
-|---|---|---|
+| --- | --- | --- |
 | `HOMEGAMES_ROOT` | auto-detected | Root directory of the project |
 | `HOMEGAMES_ENCODER` | `h264_v4l2m2m` (Pi) / `auto` (Docker) | Video encoder. `auto` probes nvenc → qsv → vaapi → libx264 |
 | `HOMEGAMES_RENDER_NODE` | `/dev/dri/renderD128` | DRM render node for VAAPI/QSV encoders |
@@ -262,6 +262,7 @@ All configuration is via environment variables. Docker defaults are in the `Dock
 
 1. Install or compile the libretro core `.so` for the target console.
 2. Add an entry to `config/cores.json`:
+
    ```json
    {
      "ps1": "/path/to/pcsx_rearmed_libretro.so",
@@ -269,10 +270,13 @@ All configuration is via environment variables. Docker defaults are in the `Dock
      "gba": "/path/to/mgba_libretro.so"
    }
    ```
+
 3. Add the valid ROM extensions to `VALID_ROM_EXTENSIONS` in `backend/app/core/config.py`:
+
    ```python
    "gba": {".gba"},
    ```
+
 4. Place ROMs under `emulator/roms/gba/` and run **Scan library** in the UI.
 
 No code changes to the backend logic are needed — `POST /play` resolves the core from `cores.json` at runtime.
@@ -282,7 +286,7 @@ No code changes to the backend logic are needed — `POST /play` resolves the co
 ## Known Limitations
 
 | Limitation | Status |
-|---|---|
+| --- | --- |
 | **Single user / one game at a time** | By design for home use. No multi-session support. |
 | **x86_64 only (Docker)** | The Docker image downloads a `linux_amd64` MediaMTX binary and is validated on x86_64. ARM64 / Mac M-series not supported (build fails early with a clear message). |
 | **PS2 (PCSX2) not supported yet** | `video_driver=null` is insufficient for PS2 — it requires real OpenGL/Vulkan (Xvfb or EGL headless). Planned. |
@@ -322,7 +326,7 @@ Bug reports and pull requests are welcome. Please open an issue before submittin
 RetroHost is glue code: Python orchestration over a set of excellent open source projects that do the real work.
 
 | Project | Role |
-|---|---|
+| --- | --- |
 | [RetroArch](https://www.retroarch.com/) / [libretro](https://www.libretro.com/) | Headless emulation frontend |
 | [PCSX-ReARMed](https://github.com/libretro/pcsx_rearmed) | PS1 libretro core (compiled from source) |
 | [FFmpeg](https://ffmpeg.org/) | Video/audio encoding pipeline |
