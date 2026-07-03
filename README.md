@@ -41,7 +41,7 @@ Projects such as [Sunshine](https://github.com/LizardByte/Sunshine), [Wolf](http
 1. [How it works](#how-it-works)
 2. [Architecture & Pipeline](#architecture--pipeline)
 3. [Performance Metrics](#performance-metrics)
-4. [Quick Start — Docker (x86_64)](#quick-start--docker-x8664)
+4. [Quick Start — Docker (x86_64)](#quick-start--docker-x86_64)
 5. [Raspberry Pi Setup](#raspberry-pi-setup)
 6. [Configuration Reference](#configuration-reference)
 7. [Adding a New Console / Core](#adding-a-new-console--core)
@@ -114,7 +114,7 @@ Input round-trip (WebSocket send → emulator reaction) is sub-millisecond on th
 ### 1. Clone and build
 
 ```bash
-git clone <repo-url> retrohost
+git clone https://github.com/vitorfranklin/retrohost.git retrohost
 cd retrohost
 docker build -t retrohost .
 ```
@@ -143,6 +143,12 @@ docker run -d --name retrohost --privileged --device /dev/dri \
   -v retrohost-data:/data retrohost
 ```
 
+Alternatively, use Docker Compose (see [compose.yml](compose.yml) for GPU options):
+
+```bash
+RETROHOST_WEBRTC_HOST=<YOUR_LAN_IP> docker compose up -d
+```
+
 > `HOMEGAMES_WEBRTC_HOST` must be the LAN IP of the host machine (e.g. `192.168.1.100`). Without it, WebRTC ICE candidates will advertise the container's internal IP (`172.17.x.x`) and video will not reach other devices on your network.
 
 ### 3. Configure storage and play
@@ -167,7 +173,7 @@ When a game is running, any device on the LAN can open the same URL and click **
 ### 1. Clone the repository
 
 ```bash
-git clone <repo-url> ~/retrohost
+git clone https://github.com/vitorfranklin/retrohost.git ~/retrohost
 cd ~/retrohost
 ```
 
@@ -197,13 +203,15 @@ At the end it prints the URL to open in your browser and any remaining manual st
 ```
 emulator/roms/
   ps1/
-    Crash Bandicoot/
-      Crash Bandicoot.cue
-      Crash Bandicoot.bin
+    Magic Castle/
+      Magic Castle.cue
+      Magic Castle.bin
   snes/
-    Super Mario World/
-      Super Mario World.sfc
+    Super Boss Gaiden/
+      Super Boss Gaiden.sfc
 ```
+
+> The examples above are freely distributed homebrew games you can legally download to test your setup: [Magic Castle](https://archive.org/details/magic-castle-2021-07-may) (PS1, Net Yaroze) and [Super Boss Gaiden](https://superbossgaiden.superfamicom.org/) (SNES).
 
 Open `http://<PI_IP>:8000`, click **Scan library**, then **Play**.
 

@@ -23,7 +23,7 @@ Thank you for your interest in contributing. This document covers how to set up 
 **Clone and install:**
 
 ```bash
-git clone <repo-url> retrohost
+git clone https://github.com/vitorfranklin/retrohost.git retrohost
 cd retrohost/backend
 python3 -m venv .venv
 source .venv/bin/activate
@@ -33,7 +33,7 @@ pip install -r requirements.txt
 **On a Raspberry Pi**, use the all-in-one setup script instead:
 
 ```bash
-git clone <repo-url> ~/retrohost
+git clone https://github.com/vitorfranklin/retrohost.git ~/retrohost
 cd ~/retrohost
 bash scripts/setup.sh
 ```
@@ -98,7 +98,14 @@ refactor: extract encoder probe into separate module
 
 **Adding dependencies:** open an issue first. Every new Python dependency must have a wheel available for ARMv7 (Pi) or be pure Python — compiled extensions that require build tools on the Pi are a known pain point.
 
-**No tests yet** — the project does not have an automated test suite. If you add tests, `pytest` is the preferred framework. Unit tests for `encoder_detect.py` and `_resolve_launch_file()` in `retroarch.py` would be the highest-value starting points.
+**Tests** — the project uses `pytest`. Unit tests live in `tests/unit/` and run on any OS (Linux-only APIs are mocked):
+
+```bash
+pip install pytest
+python -m pytest
+```
+
+Run the suite before opening a PR. New code should come with tests where practical — `services/player.py` and `services/storage.py` are currently the least-covered areas and good candidates for new tests.
 
 ---
 
