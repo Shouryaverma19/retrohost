@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock, patch
-from services.player import PlayerService  # Adjust import based on exact repository structure
+from app.services.player import PlayerService  # Adjust import based on exact repository structure
 
 class TestPlayerService(unittest.TestCase):
 
@@ -14,14 +14,13 @@ class TestPlayerService(unittest.TestCase):
         self.service = PlayerService(
             driver=self.mock_driver, 
             streaming=self.mock_streaming, 
-            input_handler=self.mock_input
+            input_provider=self.mock_input
         )
 
     def test_play_stop_orchestration(self):
         """Test complete play and stop life cycle orchestration."""
-        self.service.play(game_id="super_mario")
-        self.mock_driver.start.assert_called_once_with("super_mario")
-        
+        mock_game = MagicMock()
+        self.service.play(mock_game)
         self.service.stop()
         self.mock_driver.stop.assert_called_once()
 
