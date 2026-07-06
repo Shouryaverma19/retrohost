@@ -17,13 +17,13 @@ class TestPlayerService(unittest.TestCase):
             input_provider=self.mock_input
         )
 
-    def test_play_stop_orchestration(self):
+   @patch("app.services.player.PlayerService._is_stream_ready", return_value=True)
+    def test_play_stop_orchestration(self, mock_ready):
         """Test complete play and stop life cycle orchestration."""
         mock_game = MagicMock()
         self.service.play(mock_game)
         self.service.stop()
         self.mock_driver.stop.assert_called_once()
-
     @patch("time.sleep", return_value=None)  # Fast-forward sleep intervals during tests
     def test_wait_stream_ready_timeout_path(self, mock_sleep):
         """Validate that _wait_stream_ready throws or handles timeouts safely if stream isn't ready."""
@@ -35,9 +35,9 @@ class TestPlayerService(unittest.TestCase):
     def test_status_when_process_dies(self):
         """Verify service accurately reports state changes when the underlying driver process dies."""
         self.mock_driver.is_running.return_value = False
-        
-        status = self.service.get_status()
-        self.assertEqual(status, "STOPPED")
+
+        running, game = self.service.status()
+        self.assertFalse(running)
 
 if __name__ == "__main__":
     unittest.main()
