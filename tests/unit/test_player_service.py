@@ -30,9 +30,8 @@ class TestPlayerService(unittest.TestCase):
         self.mock_streaming.is_ready.return_value = False
         
         # Assuming it returns False or raises a TimeoutError on failure paths
-        result = self.service._wait_stream_ready(timeout=1)
-        self.assertFalse(result)
-
+        with self.assertRaises(StreamNotReadyError):
+            self.service._wait_stream_ready()
     def test_status_when_process_dies(self):
         """Verify service accurately reports state changes when the underlying driver process dies."""
         self.mock_driver.is_running.return_value = False
