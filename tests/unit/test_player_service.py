@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock, patch
-from app.services.player import PlayerService  # Adjust import based on exact repository structure
+from app.services.player import PlayerService, StreamNotReadyError  # Adjust import based on exact repository structure
 
 class TestPlayerService(unittest.TestCase):
 
@@ -17,7 +17,7 @@ class TestPlayerService(unittest.TestCase):
             input_provider=self.mock_input
         )
 
-   @patch("app.services.player.PlayerService._is_stream_ready", return_value=True)
+    @patch("app.services.player.PlayerService._is_stream_ready", return_value=True)
     def test_play_stop_orchestration(self, mock_ready):
         """Test complete play and stop life cycle orchestration."""
         mock_game = MagicMock()
@@ -34,7 +34,7 @@ class TestPlayerService(unittest.TestCase):
             self.service._wait_stream_ready()
     def test_status_when_process_dies(self):
         """Verify service accurately reports state changes when the underlying driver process dies."""
-        self.mock_driver.is_running.return_value = False
+        self.mock_driver.status.return_value = False
 
         running, game = self.service.status()
         self.assertFalse(running)
